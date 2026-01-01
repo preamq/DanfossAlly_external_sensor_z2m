@@ -85,8 +85,8 @@ blueprint:
 # Define variables used in the automation
 variables:
   thermostat_device: !input thermostat_device
+  # Find the external measured room sensor entity for the selected thermostat device
   external_measured_room_sensor: >
-    # Find the external measured room sensor entity for the selected thermostat device
     {{ device_entities(thermostat_device) | select('match', '.*_external_measured_room_sensor$') | list | first | default('') }}
 
 # Automation configuration
