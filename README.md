@@ -1,2 +1,1 @@
-
-[![Import Blueprint to Home Assistant](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?url=https://github.com/preamq/DanfossAlly_external_sensor_z2m/blob/main/Ally_external_sensor.yaml)
+<a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fpreamq%2FDanfossAlly_external_sensor_z2m%2Fblob%2Fmain%2FAlly_external_sensor.yaml" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/blueprint_import.svg" alt="Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled." /></a>
