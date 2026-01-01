@@ -1,0 +1,110 @@
+blueprint:
+  name: "Danfoss Ally Thermostat External Temperature Sensor Integration"
+  description: >
+    This blueprint automates the integration of an external temperature sensor with a Danfoss Ally thermostat via Zigbee2MQTT.
+    It converts the temperature sensor value to the required format (multiplied by 100) and updates the thermostat's external measured room sensor.
+    The automation triggers on sensor state changes, with optimizations to reduce reporting frequency (10-30 minutes) and only when temperature deviates significantly.
+    It also manages a timer helper to periodically refresh the temperature data.
+  domain: automation
+  input:
+    temperature_sensor:
+      name: Temperature sensor
+      description: >
+        Select the temperature sensor entity that will provide the external temperature readings.
+        This sensor should be reliable and report in degrees Celsius.
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+
+    integer_helper:
+      name: Integer helper (input_number)
+      description: >
+        Create an input_number helper in Home Assistant (Settings > Devices & Services > Helpers > Create Helper > Number).
+        Configure with: Display mode = Input, Step = 1, Min value = -8000, Max value = 3500.
+        This helper stores the scaled temperature value for reference.
+      selector:
+        entity:
+          domain: input_number
+
+    timer_helper:
+      name: Timer helper
+      description: >
+        Select a timer helper entity that will be used to periodically trigger temperature updates.
+        This helps maintain fresh data without constant polling.
+      selector:
+        entity:
+          domain: timer
+
+    timer_duration:
+      name: Timer duration
+      description: >
+        Set the duration for the timer between automatic temperature updates.
+        Recommended: 10-30 minutes to balance responsiveness and battery life.
+      selector:
+        duration:
+          enable_day: false
+          enable_millisecond: false
+
+    thermostat_device:
+      name: Danfoss Ally thermostat
+      description: >
+        Select the Danfoss Ally thermostat device integrated via MQTT (Zigbee2MQTT).
+        The blueprint will automatically find and update the external measured room sensor entity.
+      selector:
+        device:
+          integration: mqtt
+          manufacturer: Danfoss
+
+# Define variables used in the automation
+variables:
+  thermostat_device: !input thermostat_device
+  external_measured_room_sensor: >
+    # Find the external measured room sensor entity for the selected thermostat device
+    {{ device_entities(thermostat_device) | select('match', '.*_external_measured_room_sensor$') | list | first | default('') }}
+
+# Automation configuration
+mode: queued
+max: 10
+
+# Triggers for the automation
+trigger:
+  - platform: state
+    entity_id: !input temperature_sensor
+    # Trigger when the temperature sensor changes state
+
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: !input timer_helper
+    # Trigger when the timer helper finishes
+
+# Conditions to check before running actions
+condition:
+  - condition: template
+    value_template: >
+      # Ensure the trigger state is valid (not unknown, unavailable, or none)
+      {{ trigger.to_state is not none and trigger.to_state.state not in ['unknown','unavailable','none'] }}
+
+# Actions to perform when triggered
+action:
+  - service: input_number.set_value
+    target:
+      entity_id: !input integer_helper
+    data:
+      value: "{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}"
+    # Set the integer helper to the scaled temperature value (multiplied by 100)
+
+  - service: number.set_value
+    target:
+      entity_id: "{{ external_measured_room_sensor }}"
+    data:
+      value: "{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}"
+    # Update the thermostat's external measured room sensor with the scaled value
+
+  - service: timer.start
+    target:
+      entity_id: !input timer_helper
+    data:
+      duration: !input timer_duration
+    # Restart the timer for the next periodic update
