@@ -1,21 +1,52 @@
 blueprint:
   name: "Danfoss Ally Thermostat External Temperature Sensor Integration"
-  description: >
-    This blueprint automates the integration of an external temperature sensor with a Danfoss Ally thermostat via Zigbee2MQTT.
-    It converts the temperature sensor value to the required format (multiplied by 100) and updates the thermostat's external measured room sensor.
-    The automation triggers on sensor state changes, with optimizations to reduce reporting frequency (10-30 minutes) and only when temperature deviates significantly.
-    It also manages a timer helper to periodically refresh the temperature data.
+  description: |
+    # Danfoss Ally External Temperature Sensor Integration
+
+    This blueprint automates the integration of an external temperature sensor with a Danfoss Ally thermostat via Zigbee2MQTT. It will not work with other integrations like Deconz or ZHA and will not work with any other thermostat brands.
+
+    ## How it works
+    - Converts temperature sensor values to the required format (multiplied by 100)
+    - Updates the thermostat's external measured room sensor automatically
+    - Triggers on sensor state changes with optimized refresh intervals
+    - Manages periodic updates via a timer helper to reduce battery drain
+
+    ## Setup Guide
+
+    ### 1. Create Required Helpers
+    Go to **Settings > Devices & Services > Helpers > Create Helper**
+
+    #### Number Helper (Integer Helper)
+    - **Name:** Temperature Scaling Helper
+    - **Display mode:** Input
+    - **Step:** 1
+    - **Min value:** -8000
+    - **Max value:** 3500
+    - Stores the scaled temperature value for reference
+
+    #### Timer Helper
+    - **Name:** Temperature Update Timer
+    - Used to periodically trigger temperature updates
+
+    ### 2. Configure Inputs
+    - Select your external temperature sensor (Celsius)
+    - Select the number helper you created
+    - Select the timer helper you created
+    - Set timer duration (recommended: 10-30 minutes)
+    - Select your Danfoss Ally thermostat device
+
+    ## Notes
+    - Temperature sensor must report in degrees Celsius
+    - Timer duration balances responsiveness and battery life
+    - The blueprint automatically finds the external measured room sensor entity
+
   domain: automation
   author: "preamq"
-  version: "1.0.0"
-  min_version: "2025.12.0"
   
   input:
     temperature_sensor:
       name: Temperature sensor
-      description: >
-        Select the temperature sensor entity that will provide the external temperature readings.
-        This sensor should be reliable and report in degrees Celsius.
+      description: Select the temperature sensor entity that provides external temperature readings in degrees Celsius.
       selector:
         entity:
           domain: sensor
@@ -23,28 +54,21 @@ blueprint:
 
     integer_helper:
       name: Integer helper (input_number)
-      description: >
-        Create an input_number helper in Home Assistant (Settings > Devices & Services > Helpers > Create Helper > Number).
-        Configure with: Display mode = Input, Step = 1, Min value = -8000, Max value = 3500.
-        This helper stores the scaled temperature value for reference.
+      description: Select or create an input_number helper configured with Min = -8000, Max = 3500, Step = 1.
       selector:
         entity:
           domain: input_number
 
     timer_helper:
       name: Timer helper
-      description: >
-        Select a timer helper entity that will be used to periodically trigger temperature updates.
-        This helps maintain fresh data without constant polling.
+      description: Select a timer helper entity for periodic temperature update triggers.
       selector:
         entity:
           domain: timer
 
     timer_duration:
       name: Timer duration
-      description: >
-        Set the duration for the timer between automatic temperature updates.
-        Recommended: 10-30 minutes to balance responsiveness and battery life.
+      description: Set the interval between automatic temperature updates (recommended 10-30 minutes).
       selector:
         duration:
           enable_day: false
@@ -52,9 +76,7 @@ blueprint:
 
     thermostat_device:
       name: Danfoss Ally thermostat
-      description: >
-        Select the Danfoss Ally thermostat device integrated via MQTT (Zigbee2MQTT).
-        The blueprint will automatically find and update the external measured room sensor entity.
+      description: Select the Danfoss Ally thermostat device integrated via MQTT (Zigbee2MQTT).
       selector:
         device:
           integration: mqtt
