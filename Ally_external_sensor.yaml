@@ -106,18 +106,24 @@ trigger:
 
 # Actions to perform when triggered
 action:
+  - service: system_log.write
+    data:
+      message: "Setting external temperature: {% if trigger.platform == 'state' %}{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}{% else %}{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}{% endif %} to entity {{ external_measured_room_sensor }}"
+      level: info
+    # Log the value being set for debugging
+
   - service: input_number.set_value
     target:
       entity_id: !input integer_helper
     data:
-      value: "{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}"
+      value: "{% if trigger.platform == 'state' %}{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}{% else %}{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}{% endif %}"
     # Set the integer helper to the scaled temperature value (multiplied by 100)
 
   - service: number.set_value
     target:
       entity_id: "{{ external_measured_room_sensor }}"
     data:
-      value: "{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}"
+      value: "{% if trigger.platform == 'state' %}{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}{% else %}{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}{% endif %}"
     # Update the thermostat's external measured room sensor with the scaled value
 
   - service: timer.start
