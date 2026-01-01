@@ -6,6 +6,10 @@ blueprint:
     The automation triggers on sensor state changes, with optimizations to reduce reporting frequency (10-30 minutes) and only when temperature deviates significantly.
     It also manages a timer helper to periodically refresh the temperature data.
   domain: automation
+  author: "preamq"
+  version: "1.0.0"
+  min_version: "2025.12.0"
+  
   input:
     temperature_sensor:
       name: Temperature sensor
