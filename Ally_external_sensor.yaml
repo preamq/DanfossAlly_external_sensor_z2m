@@ -87,8 +87,8 @@ trigger:
 condition:
   - condition: template
     value_template: >
-      # Ensure the trigger state is valid (not unknown, unavailable, or none)
-      {{ trigger.to_state is not none and trigger.to_state.state not in ['unknown','unavailable','none'] }}
+      # Ensure the temperature sensor has a valid state (not unknown, unavailable, or none)
+      {{ states('!input temperature_sensor') not in ['unknown','unavailable','none'] }}
 
 # Actions to perform when triggered
 action:
@@ -96,14 +96,14 @@ action:
     target:
       entity_id: !input integer_helper
     data:
-      value: "{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}"
+      value: "{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}"
     # Set the integer helper to the scaled temperature value (multiplied by 100)
 
   - service: number.set_value
     target:
       entity_id: "{{ external_measured_room_sensor }}"
     data:
-      value: "{{ (trigger.to_state.state | float(0) * 100) | round(0) | int }}"
+      value: "{{ (states('!input temperature_sensor') | float(0) * 100) | round(0) | int }}"
     # Update the thermostat's external measured room sensor with the scaled value
 
   - service: timer.start
