@@ -1,8 +1,8 @@
-# Danfoss Ally External Temperature Sensor Integration
+# Danfoss Ally External Temperature Sensor Blueprint
 
 [![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fpreamq%2FDanfossAlly_external_sensor_z2m%2Fblob%2Fmain%2FAlly_external_sensor.yaml)
 
-This Home Assistant blueprint automates the integration of an external temperature sensor with a Danfoss Ally thermostat using Zigbee2MQTT. It ensures accurate room temperature reporting by converting sensor values to the thermostat's required format and managing periodic updates.
+This Home Assistant blueprint automates the connection of an external temperature sensor with a Danfoss Ally thermostat using Zigbee2MQTT. It ensures accurate room temperature reporting by converting sensor values to the thermostat's required format and managing periodic updates.
 
 ## Features
 
@@ -16,7 +16,7 @@ This Home Assistant blueprint automates the integration of an external temperatu
 
 - **Home Assistant**: Version 2024.12.0 or later
 - **Zigbee2MQTT**: Properly configured and running
-- **Danfoss Ally Thermostat**: Integrated via Zigbee2MQTT (not Deconz or ZHA)
+- **Danfoss Ally Thermostat**: Connected via Zigbee2MQTT integration (not Deconz or ZHA)
 - **External Temperature Sensor**: Any temperature sensor reporting in Celsius (°C)
 - **Helpers**:
   - Input Number helper (for storing scaled temperature)
@@ -72,7 +72,7 @@ The thermostat will use this external temperature for more accurate climate cont
 
 - **Timer Duration**: Must be at most 30 minutes to comply with Zigbee2MQTT and battery-powered sensor limitations
 - **Temperature Units**: Sensor must report in Celsius (°C). Fahrenheit sensors are not supported
-- **Thermostat Compatibility**: Only works with Danfoss Ally thermostats via Zigbee2MQTT integration
+- **Thermostat Compatibility**: Only works with Danfoss Ally thermostats connected via Zigbee2MQTT integration
 - **Battery Life**: Longer timer durations (20-30 minutes) help preserve sensor battery life
 - **Accuracy**: The blueprint rounds temperatures to the nearest 0.01°C for precision
 
@@ -81,7 +81,7 @@ The thermostat will use this external temperature for more accurate climate cont
 ### Automation Not Triggering
 - Verify the temperature sensor is updating and reporting valid numeric values
 - Check that the sensor's device_class is set to "temperature"
-- Ensure the thermostat device is properly integrated via Zigbee2MQTT
+- Ensure the thermostat device is properly connected via Zigbee2MQTT integration
 
 ### Thermostat Shows Wrong Temperature
 - Confirm the external measured room sensor entity was found correctly (check automation trace)
