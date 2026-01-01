@@ -105,13 +105,6 @@ trigger:
       entity_id: !input timer_helper
     # Trigger when the timer helper finishes
 
-# Conditions to check before running actions
-condition:
-  - condition: template
-    value_template: >
-      # Ensure the temperature sensor has a valid state (not unknown, unavailable, or none)
-      {{ states('!input temperature_sensor') not in ['unknown','unavailable','none'] }}
-
 # Actions to perform when triggered
 action:
   - service: input_number.set_value
