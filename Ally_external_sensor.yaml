@@ -89,8 +89,7 @@ variables:
   external_measured_room_sensor: "{{ device_entities(thermostat_device) | select('match', '.*_external_measured_room_sensor$') | list | first | default('') }}"
 
 # Automation configuration
-mode: queued
-max: 10
+mode: single
 
 # Triggers for the automation
 trigger:
