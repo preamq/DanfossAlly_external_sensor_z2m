@@ -76,6 +76,45 @@ The thermostat will use this external temperature for more accurate climate cont
 - **Battery Life**: Longer timer durations (20-30 minutes) help preserve sensor battery life
 - **Accuracy**: The blueprint rounds temperatures to the nearest 0.01°C for precision
 
+## Optional: Template Climate Entity
+
+If your Danfoss thermostat's built-in temperature sensor shows inaccurate readings due to radiator proximity, you can create a template climate entity that displays the external temperature instead.
+
+Add this to your `configuration.yaml` (adjust entity IDs to match your setup):
+
+```yaml
+climate:
+  - platform: template
+    climates:
+      danfoss_ally_external_temp:
+        friendly_name: "Danfoss Ally (External Temp)"
+        value_template: "{{ states('climate.your_danfoss_climate_entity') }}"
+        temperature_template: "{{ state_attr('climate.your_danfoss_climate_entity', 'temperature') }}"
+        current_temperature_template: "{{ states('sensor.your_external_temperature_sensor') | float(0) }}"
+        target_temp_template: "{{ state_attr('climate.your_danfoss_climate_entity', 'target_temp_low') if state_attr('climate.your_danfoss_climate_entity', 'target_temp_low') else state_attr('climate.your_danfoss_climate_entity', 'temperature') }}"
+        min_temp: "{{ state_attr('climate.your_danfoss_climate_entity', 'min_temp') }}"
+        max_temp: "{{ state_attr('climate.your_danfoss_climate_entity', 'max_temp') }}"
+        temp_step: "{{ state_attr('climate.your_danfoss_climate_entity', 'target_temp_step') }}"
+        hvac_modes:
+          - "off"
+          - "heat"
+        hvac_action_template: "{{ state_attr('climate.your_danfoss_climate_entity', 'hvac_action') }}"
+        set_temperature:
+          service: climate.set_temperature
+          target:
+            entity_id: climate.your_danfoss_climate_entity
+        set_hvac_mode:
+          service: climate.set_hvac_mode
+          target:
+            entity_id: climate.your_danfoss_climate_entity
+```
+
+Replace:
+- `climate.your_danfoss_climate_entity` with your actual Danfoss climate entity ID
+- `sensor.your_external_temperature_sensor` with your external temperature sensor entity ID
+
+This creates a new climate entity that mirrors your Danfoss thermostat's controls but displays the accurate external temperature. The thermostat continues to use the external sensor for control logic.
+
 ## Troubleshooting
 
 ### Automation Not Triggering
